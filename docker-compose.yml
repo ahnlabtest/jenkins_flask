@@ -4,7 +4,7 @@ services:
     build: .
     image: ${DOCKER_USER_ID}/flask
   production:
-    image: ${DOCKER_USER_ID}/flask:${BUILD_NUMBER}
+    image: ${DOCKER_USER_ID}/flask:1
     volumes:
       - .:/code
     command: python app.py
