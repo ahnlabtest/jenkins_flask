@@ -20,6 +20,7 @@ node {
             sh(script: 'docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}')
             sh(script: 'docker push ${DOCKER_USER_ID}/flask:${BUILD_NUMBER}')
             sh(script: 'docker push ${DOCKER_USER_ID}/flask:latest')
+            sh(script: 'docker logout')
        }
        stage('Deploy') {
           sh(script: 'docker-compose up -d production')
