@@ -19,6 +19,7 @@ pipeline {
         ARTIFACTORY = credentials('docker-hub')
         DOCKER_USER_ID = "${ARTIFACTORY_USR}"
         DOCKER_USER_PASSWORD = "${ARTIFACTORY_PSW}"
+<<<<<<< HEAD
 //        DEPLOY_NUMBER = "${BUILD_NUMBER}"   
     }    
  
@@ -83,4 +84,63 @@ pipeline {
             }
         }                  
     }
+=======
+        DEPLOY_NUMBER = ${params.OLD_BUILD_NO} //'32' //"${params.OLD_BUILD_NO == '' ? '${BUILD_NUMBER}' : '${params.OLD_BUILD_NO}'}"   
+    }    
+ 
+        stages {
+            stage("PULL") {
+                when {
+                    expression{ params.PULL==true } 
+                }
+                steps {
+                    echo "# Pull stage."
+                    git 'https://github.com/ahnlabtest/jenkins_flask.git'
+                }
+            }
+            stage("BUILD") {
+                when {
+                    expression{ params.BUILD==true }
+                }
+                steps {
+                    echo "# Build stage."
+                    sh(script: 'docker-compose build app')
+                }
+            }
+            stage("TAG") {
+                when {
+                    expression{ params.TAG==true }
+                }
+                steps {
+                    echo "# TAG stage."
+                    sh(script: '''docker tag ${DOCKER_USER_ID}/flask \
+                        ${DOCKER_USER_ID}/flask:${BUILD_NUMBER}''')
+                }
+            }            
+            stage("PUSH") {
+                when {
+                    expression{ params.PUSH==true }
+                }
+                steps {
+                    echo "# PUSH stage."
+                    sh(script: 'docker login -u ${DOCKER_USER_ID} -p ${DOCKER_USER_PASSWORD}')
+                    sh(script: 'docker push ${DOCKER_USER_ID}/flask:${BUILD_NUMBER}')
+                    sh(script: 'docker push ${DOCKER_USER_ID}/flask:latest')
+                    sh(script: 'docker logout')
+                }
+            }                    
+            stage("DEPLOY") {
+                when {
+                    expression{ params.DEPLOY==true }
+                }
+                steps {
+                    echo "# DEPLOY stage."
+                    echo '${DEPLOY_NUMBER}'
+                    script{
+                            sh 'echo ${DEPLOY_NUMBER}'
+                    }
+                }
+            }                  
+        }
+>>>>>>> 6c5317447ab3ae4091fd56e51df40b3aedec3270
 }
